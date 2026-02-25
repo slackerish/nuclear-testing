@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Slackerish | Home</title>
+
+<link id="favicon" rel="icon" href="favicon.png" />
+
+<!-- CRITICAL: Paint dark canvas before ANY stylesheet loads — eliminates white flash -->
+<style>
+  html {
+    background-color: #222;
+  }
+</style>
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+:root {
+  --preloader-text-color: #ffffff;
+}
+
+/* background */
+.preloader { 
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #ff0000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 999999;
+  opacity: 1;
+  pointer-events: all;
+  transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+/* background hidden state */
+.preloader.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+/* background image overlay */
+#loader-gif {
+  position: absolute;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url("${loadingGraphic}");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 1;
+  pointer-events: none;
+}
+/* percentage preload */
+#counter {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: var(--preloader-text-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+  z-index: 2;
+}
+
+.load-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: rgba(0, 255, 255, 0.4);
+  transition: width 0.3s ease;
+}
+
+#loaderText {
+  visibility: hidden;
+  display: none;
+}
+
+#loader {
+  width: 400px;
+  height: 10px;
+  background: #222;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #ff0000, #00e5ff);
+  transition: width 0.3s ease;
+}
+</style>
+
+<link rel="stylesheet" href="themes.css" />
+<!-- MAIN CSS -->
+
+<style>
+/* ==========================================
+   Global Reset & Layout
+   ========================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+/* ==========================================
+   Disable Text Selection & Focus Highlights
+   ========================================== */
+  -webkit-user-select: none; /* Chrome, Safari, Edge */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE 10+ */
+  user-select: none;         /* Standard */
+  -webkit-tap-highlight-color: transparent; /* Remove mobile tap highlight */
+}
+
+/* ==========================================
+   HTML: owns the background — covers ALL scroll space
+   body is transparent so html paints everywhere
+   ========================================== */
+html {
+  height: 100%;
+  min-height: 100%;
+  /* Solid fallback paints instantly before themes.css resolves the variable */
+  background-color: #222;
+  /* Theme variable image — will tile to cover infinite scroll space */
+  background-image: var(--main-bg);
+  background-repeat: repeat;
+  background-size: auto;
+  background-position: top left;
+  /* 'local' scrolls with content, meaning no white gaps at any scroll depth */
+  background-attachment: local;
+}
+
+body {
+  color: var(--text-color);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  /* Transparent so html's tiled background is always visible beneath */
+  background: transparent;
+}
+
+/* ==========================================
+   Links
+   ========================================== */
+a, a:visited {
+  color: var(--link-color);
+  text-decoration: none;
+}
+a:focus { outline: none; }
+
+/* ==========================================
+   Header & Navigation
+   ========================================== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--header-bg);
+  padding: 10px 20px;
+  width: 100%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+header a, footer a {
+  margin: 0 10px;
+  color: var(--link-color);
+  font-family: monospace;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s, text-decoration 0.3s;
+}
+header a:hover, footer a:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
+}
+
+header img {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================
+   Page Controls
+   ========================================== */
+.pages-anchor {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.pages-anchor button {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pages-anchor button img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.pages-anchor button:hover img {
+  transform: scale(1.2);
+}
+
+.pages-anchor .page-indicator {
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: var(--link-color);
+  font-family: monospace;
+  user-select: none;
+}
+
+/* ==========================================
+   Profile & Dashboard
+   ========================================== */
+#pfp {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+  object-fit: cover;
+}
+#pfp:hover { transform: scale(1.1); }
+
+#dashboardBtn {
+  width: 36px;
+  background: none;
+  border: none;
+  color: var(--link-color);
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+#dashboardBtn:hover { transform: scale(1.1); }
+
+.dashboard-menu {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  background: var(--menu-bg);
+  border-radius: 10px;
+  display: none;
+  flex-direction: column;
+  min-width: 200px;
+  padding: 10px 0;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+.dashboard-menu a {
+  padding: 10px 16px;
+  color: var(--link-color);
+  font-family: monospace;
+  text-decoration: none;
+  display: block;
+  transition: color 0.3s, background 0.3s;
+}
+.dashboard-menu a:hover {
+  color: var(--accent-color);
+  background: rgba(255,255,255,0.1);
+}
+.dashboard-menu p {
+  padding: 10px 16px;
+  font-family: monospace;
+  color: var(--link-color);
+  font-weight: bold;
+  text-decoration: none;
+  display: block;
+  cursor: default;
+  transition: color 0.3s, text-decoration 0.3s, background 0.3s;
+}
+
+.dashboard-menu p:hover {
+  color: var(--accent-color);
+  background: rgba(255,255,255,0.1);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
+}
+
+
+/* ==========================================
+   Search Bar
+   ========================================== */
+.search-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--input-bg);
+  border-radius: 25px;
+  padding: 4px 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  transition: box-shadow 0.2s;
+}
+.search-box:focus-within { box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+
+.search-box input {
+  padding: 6px;
+  border: none;
+  background: transparent;
+  color: var(--input-text);
+  font-family: monospace;
+  font-size: 14px;
+  flex: 1;
+}
+.search-box input::placeholder { color: var(--input-placeholder); }
+
+.search-box button {
+  padding: 6px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: var(--search-btn-bg);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, filter 0.2s;
+}
+.search-box button:hover { transform: scale(1.1); filter: brightness(1.2); }
+.search-box button img { width: 14px; height: 14px; }
+
+.search-error {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4d4d;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 1000;
+}
+
+#searchFeedback {
+  display: none;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  text-align: center;
+}
+#searchFeedback img {
+  max-height: 120px;
+  border-radius: 8px;
+}
+.search-box input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+/* ==========================================
+   Asset Cards (base — overridden by 5-col below)
+   ========================================== */
+#container div,
+#container-discov div {
+  width: 180px;
+  min-height: 160px;
+  background: var(--card-bg);
+  text-align: center;
+  border-radius: 20px;
+  padding-top: 8px;
+  transition: transform 0.2s ease;
+}
+
+#container div:hover,
+#container-discov div:hover {
+  transform: scale(1.05);
+}
+
+#container div img,
+#container-discov div img {
+  width: 130px;
+  height: auto;
+  display: block;
+  margin: 0 auto 0px;
+  border-radius: 14px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+#container div img:hover,
+#container-discov div img:hover {
+  transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+  #container div img,
+  #container-discov div img {
+    max-width: 75%;
+  }
+}
+
+/* ==========================================
+   Card Text
+   ========================================== */
+#container div h3,
+#container div p,
+#container-discov div h3,
+#container-discov div p {
+  color: var(--link-color);
+  font-family: monospace;
+  font-size: 0.9rem;
+  transition: color 0.3s, text-decoration 0.3s;
+}
+#container div h3:hover,
+#container div p:hover,
+#container-discov div h3:hover,
+#container-discov div p:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+/* ==========================================
+   SOON Status (Classic)
+   ========================================== */
+.soon {
+  position: relative;
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(100%);
+}
+.soon::after {
+  content: "COMING SOON";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 4px #000;
+  z-index: 3;
+  pointer-events: none;
+}
+.soon:hover {
+  border: 2px solid #ff0000;
+  box-shadow: 0 0 10px #ff0000;
+}
+.soon img {
+  filter: grayscale(100%);
+  opacity: 0.7;
+  transition: opacity 0.25s ease;
+}
+.soon:hover img {
+  opacity: 0.55;
+}
+
+/* ==========================================
+   Utility Elements
+   ========================================== */
+embed {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Back to Top */
+#toTopBtn {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-family: monospace;
+  border: none;
+  border-radius: 8px;
+  background: var(--header-bg);
+  color: var(--link-color);
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  opacity: 0.6;
+  transition: opacity 0.3s, color 0.3s;
+}
+#toTopBtn:hover {
+  opacity: 0.8;
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+/* Show Back to Top Button */
+#toTopBtn.show {
+  display: block !important;
+  opacity: 0.75 !important;
+  pointer-events: auto !important;
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  background: var(--footer-bg);
+  text-align: center;
+  padding: 30px;
+  width: 100%;
+  font-family: monospace;
+  color: var(--link-color);
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
+}
+
+/* ==========================================
+   Preloader Progress Bar
+   ========================================== */
+.load-progress-text {
+  font-family: monospace;
+  color: white;
+  text-align: center;
+  margin-top: 10px;
+}
+.load-progress-bar {
+  width: 80%;
+  height: 8px;
+  margin: 10px auto;
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.load-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #00ffff, #ff00ff);
+  transition: width 0.3s ease;
+}
+
+/* ==========================================
+   Sort Mode Buttons
+   ========================================== */
+.theme-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.theme-btn {
+  padding: 10px 16px;
+  border: 2px solid var(--accent-color);
+  background: var(--header-bg);
+  color: var(--text-color);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.theme-btn:hover {
+  transform: scale(1.05);
+  background: var(--accent-color);
+  color: #fff;
+}
+.theme-btn.active {
+  background: var(--accent-color);
+  color: #fff;
+  box-shadow: 0 0 10px var(--accent-color);
+}
+
+/* ==========================================
+   FIX Status (Grey Base + Transparent Overlay)
+   ========================================== */
+.fix {
+  position: relative;
+  filter: grayscale(100%);
+  opacity: 0.8;
+}
+
+.fix img {
+  filter: grayscale(100%);
+  opacity: 0.9;
+  mix-blend-mode: multiply;
+}
+
+.fix::after {
+  content: "";
+  inset: 0;
+  border-radius: inherit;
+  z-index: 3;
+}
+
+input, textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+a, button, input, textarea {
+  outline: none !important;
+}
+
+/* ==========================================
+   Status Overlays: Featured / New / Fixed
+   ========================================== */
+.asset-link img.status-overlay {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+.asset-link:hover img.status-overlay {
+  opacity: 0.55;
+  transform: none;
+}
+
+.asset-link img.status-overlay.overlay-featured,
+.asset-link img.status-overlay.overlay-new,
+.asset-link img.status-overlay.overlay-fixed {
+  z-index: 2;
+}
+
+/* ==========================================
+   Top Bar
+   ========================================== */
+#topBar {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 20;
+  color: #fff;
+}
+
+#topBar header {
+  z-index: 21;
+}
+
+#quoteWrapper {
+  position: relative;
+  width: 100vw;
+  height: 30px;
+  overflow: hidden;
+  background: var(--quote-bg);
+  color: var(--quote-text);
+  display: flex;
+  align-items: center;
+}
+
+#quoteBox {
+  position: absolute;
+  white-space: nowrap;
+  font-weight: bold;
+  background: var(--quote-bg);
+  color: var(--quote-text);
+  transform: translateX(100%);
+  user-select: none;
+  cursor: default;
+  font-size: 1.0em;
+  font-family: monospace;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.quote-sticker {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  vertical-align: middle;
+  pointer-events: none;
+}
+
+/* ==========================================
+   Grid Layout (Locked to 5 Columns)
+   ========================================== */
+#container,
+#container-discov {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  justify-items: center;
+  gap: 15px;
+  padding: 20px;
+  /* transparent — html background shows through */
+  background: transparent;
+  flex-grow: 1;
+  min-height: 0;
+  align-content: start;
+}
+
+/* ==========================================
+   Asset Cards (5-col override)
+   ========================================== */
+#container div,
+#container-discov div {
+  width: 100%;
+  max-width: 220px;
+  padding: 15px 10px;
+  background: var(--card-bg);
+  text-align: center;
+  border-radius: 20px;
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+#container div:hover,
+#container-discov div:hover {
+  transform: scale(1.03);
+}
+
+#container div img,
+#container-discov div img {
+  width: 120px;
+  height: 120px;
+  display: block;
+  border-radius: 14px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+#container div img:hover,
+#container-discov div img:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive: Switch to 2 columns on mobile */
+@media (max-width: 800px) {
+  #container, #container-discov {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+</style>
+
+<link rel="stylesheet" href="commands.css" />
+
+<meta property="og:title" content="WannaSmile" />
+<meta property="og:description" content="WannaSmile is a personal web project showcasing various tools, pages, and experiments." />
+<meta property="og:image" content="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/meta/images/11.png" />
+<meta property="og:url" content="https://vvannasmile.github.io/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="WannaSmile" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="WannaSmile" />
+<meta name="twitter:description" content="A personal web project featuring tools, pages, and visual elements." />
+<meta name="twitter:image" content="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/meta/images/11.png" />
+</head>
+
+<body>
+
+<!-- Preloader -->
+<div id="preloader" class="preloader">
+  <div id="loader-gif"></div>
+  <div class="load-progress-bar">
+    <div id="progressBar" class="load-progress-fill"></div>
+  </div>
+  <div id="loaderText" class="loading-text" style="color:white;visibility:visible;">Loading Assets...</div>
+  <div id="counter">0%</div>
+</div>
+
+<!-- Top Bar / Header -->
+<div id="topBar">
+<header>
+<nav class="nav-links">
+<a href="index.html">Home</a>
+<a href="../pages/header/favorites.html">Favorites</a>
+<a href="../pages/header/discovery.html">Discovery</a>
+<a href="../pages/header/settings.html">Settings</a>
+<a href="../pages/header/support.html">Support</a>
+<a href="../pages/header/info.html">Info</a>
+<div class="pages-anchor">
+<button class="arrowleft" onclick="prevPage()">
+<img src="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/images/icons/left.png">
+</button>
+<span class="page-indicator">...</span>
+<button class="arrowright" onclick="nextPage()">
+<img src="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/images/icons/right.png">
+</button>
+<a href="../pages/header/musicplayer.html">SoundScape</a>
+<a href="../pages/header/update-board/index.html">UPDATES</a>
+</div>
+</nav>
+
+<div class="header-controls">
+<div class="search-box">
+<input id="searchInputHeader" type="text" placeholder="Search..." />
+<button id="searchBtnHeader">
+<img src="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/images/icons/search.png">
+</button>
+</div>
+<a href="../pages/header/profile.html">
+<img id="pfp" src="profile.png">
+</a>
+<button id="dashboardBtn">
+<img src="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/images/icons/dashboard.png">
+</button>
+</div>
+</header>
+
+<div id="quoteWrapper">
+<p id="quoteBox">Loading...</p>
+</div>
+</div>
+
+<aside id="dashboardMenu" class="dashboard-menu">
+<a href="../pages/dashboard/credits.html">Credits</a>
+<a href="../pages/dashboard/alternative.html">Alternative Links</a>
+</aside>
+
+<main>
+<div id="container">Loading...</div>
+</main>
+
+<button id="toTopBtn">⬆ Top</button>
+
+<footer>
+<a href="https://sundaezipper.github.io./">Source</a>
+<a href="https://sundaezipper.github.io./">Contribute</a>
+<a href="https://discord.gg/4AKdJxJUMH">Discord</a>
+<a href="../pages/footer/SBF.html">Suggestions | Bugs | Fixes</a>
+<a href="../pages/footer/social.html">Socials</a>
+<a href="../pages/footer/download.html">download versions</a>
+<a href="../pages/footer/version.html" id="footerVersion">Version loading...</a>
+</footer>
+
+<audio id="bgm" autoplay muted></audio>
+
+<!-- External Widgets -->
+<script async defer src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3"></script>
+<script>
+  let crateInstance = null;
+
+  function initCrate() {
+    if (typeof Crate !== "undefined" && !crateInstance) {
+      crateInstance = new Crate({
+        server: "1451796462517096642",
+        channel: "1451796463368667218"
+      });
+    }
+  }
+
+  // Wait for preloader to be hidden before showing widget
+  const preloader = document.getElementById("preloader");
+  if (preloader) {
+    const observer = new MutationObserver(() => {
+      if (preloader.classList.contains("hidden")) {
+        initCrate();
+        observer.disconnect();
+      }
+    });
+    observer.observe(preloader, { attributes: true, attributeFilter: ["class"] });
+  } else {
+    // No preloader found, init on load as fallback
+    window.addEventListener("load", initCrate);
+  }
+</script>
+
+<!-- Core JS -->
+<script>
+const images=[
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/bleh.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/catcher.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/clown.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/clowninabox.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/dream.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/eye.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/eyes.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/glitched.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/me.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/purpleu.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/sleeppy.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/smile.png",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/starry.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/starwalk.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/yum.jpeg"
+];
+window.addEventListener("DOMContentLoaded",()=>{
+  document.getElementById("pfp").src=images[Math.floor(Math.random()*images.length)];
+});
+</script>
+
+<script src="settings.js" defer></script>
+<script src="main.js" defer></script>
+<script src="searcherror.js" defer></script>
+<script src="index.js" defer></script>
+<script src="version.js" defer></script>
+<script src="all.js" defer></script>
+<script src="quotes.js" defer></script>
+<script src="top.js" defer></script>
+<script src="pageflipper.js" defer></script>
+
+<!-- BACKGROUND PRE-PAINTER
+     Reads the resolved --main-bg CSS variable once themes.css has loaded,
+     then force-paints it on html BEFORE the preloader dismisses.
+     This guarantees the background image is fully decoded + composited
+     at every scroll depth before the user ever sees the page.
+-->
+<script>
+(function () {
+  function prePaintBackground() {
+    const bgValue = getComputedStyle(document.documentElement)
+      .getPropertyValue('--main-bg')
+      .trim();
+
+    // Nothing to pre-paint if the theme hasn't set a background yet
+    if (!bgValue) return;
+
+    // Extract the URL from the CSS value (handles url("...") and url(...))
+    const urlMatch = bgValue.match(/url\(["']?([^"')]+)["']?\)/);
+    if (!urlMatch) return;
+
+    const imgUrl = urlMatch[1];
+
+    // Use an offscreen Image object to force the browser to fully decode
+    // and cache the background image before we dismiss the preloader
+    const img = new Image();
+    img.src = imgUrl;
+
+    img.onload = function () {
+      // Image is decoded — now apply it directly to html so the browser
+      // has it composited and ready at ALL scroll positions
+      document.documentElement.style.backgroundImage = `url("${imgUrl}")`;
+      document.documentElement.style.backgroundRepeat = 'repeat';
+      document.documentElement.style.backgroundSize = 'auto';
+      document.documentElement.style.backgroundPosition = 'top left';
+      document.documentElement.style.backgroundAttachment = 'local';
+    };
+
+    img.onerror = function () {
+      // If image fails, fallback color already set — nothing else needed
+    };
+  }
+
+  // Run after DOM + external stylesheets are parsed
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', prePaintBackground);
+  } else {
+    prePaintBackground();
+  }
+})();
+</script>
+
+<!-- BLOB:NULL SYSTEM -->
+<script>
+(function() {
+  'use strict';
+  
+  const GOOGLE_SHEETS_API = "https://script.google.com/macros/s/AKfycbzoPHsJICVHOx8ABqkXpTvawgxCHOjR20eLe_UKFs07zrClT_0DiyVxRV72AL-abE2VnA/exec";
+  
+  let gamesData = [];
+  let isDataLoaded = false;
+  
+  async function loadGamesData() {
+    if (isDataLoaded) return gamesData;
+    try {
+      const response = await fetch(GOOGLE_SHEETS_API);
+      gamesData = await response.json();
+      isDataLoaded = true;
+      return gamesData;
+    } catch (error) {
+      console.error('Error loading games data:', error);
+      return [];
+    }
+  }
+  
+  function findRowByLink(clickedURL) {
+    return gamesData.find(row => {
+      const colC =
+        row['c'] ?? row['C'] ?? row['link'] ?? Object.values(row)[2] ?? null;
+      return colC && clickedURL.includes(String(colC).trim());
+    }) || null;
+  }
+
+  function getFaviconFromRow(row) {
+    const colD =
+      row['d'] ?? row['D'] ?? row['image'] ?? Object.values(row)[3] ?? null;
+    if (colD && String(colD).trim().startsWith('http')) {
+      return String(colD).trim();
+    }
+    return null;
+  }
+
+  function getTitleFromRow(row) {
+    const colA =
+      row['a'] ?? row['A'] ?? row['title'] ?? Object.values(row)[0] ?? null;
+    const colB =
+      row['b'] ?? row['B'] ?? row['author'] ?? Object.values(row)[1] ?? null;
+    const name   = colA ? String(colA).trim() : 'Unknown Game';
+    const author = colB ? String(colB).trim() : 'Unknown Author';
+    return `${name} | ${author}`;
+  }
+
+  async function fetchFallbackMetadata(url) {
+    try {
+      const response = await fetch(url);
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const title = doc.querySelector('title')?.textContent || 'Loading...';
+      const urlObj = new URL(url);
+      const favicon = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`;
+      return { title, favicon };
+    } catch {
+      const urlObj = new URL(url);
+      return {
+        title: 'Loading...',
+        favicon: `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`
+      };
+    }
+  }
+
+  async function openInBlob(url) {
+    await loadGamesData();
+
+    const matchedRow = findRowByLink(url);
+
+    let title, favicon;
+
+    if (matchedRow) {
+      title   = getTitleFromRow(matchedRow);
+      favicon = getFaviconFromRow(matchedRow);
+
+      if (!favicon) {
+        try {
+          favicon = `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=64`;
+        } catch {
+          favicon = '';
+        }
+      }
+    } else {
+      const metadata = await fetchFallbackMetadata(url);
+      title   = metadata.title;
+      favicon = metadata.favicon;
+    }
+
+    const fullHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>${title}</title>
+        <link rel="icon" type="image/png" href="${favicon}">
+        <style>
+          html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+          }
+          embed {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            display: block;
+          }
+        </style>
+      </head>
+      <body>
+        <embed src="${url}">
+      </body>
+      </html>
+    `;
+
+    const blob = new Blob([fullHTML], { type: 'text/html' });
+    const blobURL = URL.createObjectURL(blob);
+    window.open(blobURL, '_blank');
+  }
+
+  const aboutBlankTriggers = [
+    "source",
+    "bguhm",
+    "library",
+    "papas",
+    "mcmattyobriore.github.io",
+    "github.io",
+    "https://cattle.athrn.dev/"
+  ];
+
+  function shouldOpenInBlob(url) {
+    return aboutBlankTriggers.some(trigger => url.includes(trigger));
+  }
+
+  document.addEventListener('click', function(e) {
+    const link = e.target.closest('a');
+    if (link && link.href && shouldOpenInBlob(link.href)) {
+      e.preventDefault();
+      openInBlob(link.href);
+    }
+  }, true);
+
+  loadGamesData();
+
+})();
+</script>
+
+<script>
+const loadingGraphics = [
+  "loadingGraphic.png"
+];
+
+const loadingGraphic = loadingGraphics[Math.floor(Math.random() * loadingGraphics.length)];
+
+document.querySelector("#loader-gif").style.backgroundImage = `url("${loadingGraphic}")`;
+</script>
+</body>
+</html>
